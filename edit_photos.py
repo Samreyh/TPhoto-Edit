@@ -16,19 +16,19 @@ os.makedirs(output_folder, exist_ok=True)
 image_files = [f for f in os.listdir(input_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
 
 if not image_files:
-    print("⚠️ No images found. Check input folder.")
+    print("No images found. Check input folder.")
 else:
     for filename in image_files:
         input_path = os.path.join(input_folder, filename)
         output_path = os.path.join(output_folder, f"bg_removed_{filename}")
         try:
-            print(f"📸 Processing: {filename}")
+            print(f"Processing: {filename}")
 
             # Open image
             with open(input_path, "rb") as f:
                 img_bytes = f.read()
 
-            # 🟡 Remove background
+            # Remove background
             output_bytes = remove(img_bytes, model_dir=model_path)
 
             # Convert output to PIL image
@@ -43,25 +43,25 @@ else:
             brightness = stat.mean[0]  # Average brightness
             color_intensity = stat.mean[1]  # Average color intensity
 
-            # 🟡 Adjust brightness based on average brightness
+            # Adjust brightness based on average brightness
             if brightness < 100:
                 img_rgb = ImageEnhance.Brightness(img_rgb).enhance(1.5)
             elif brightness > 200:
                 img_rgb = ImageEnhance.Brightness(img_rgb).enhance(0.7)
 
-            # 🟡 Adjust color based on average color intensity
+            # Adjust color based on average color intensity
             if color_intensity < 100:
                 img_rgb = ImageEnhance.Color(img_rgb).enhance(1.5)
             elif color_intensity > 200:
                 img_rgb = ImageEnhance.Color(img_rgb).enhance(0.7)
 
-            # 🟡 Adjust contrast
+            # Adjust contrast
             img_rgb = ImageEnhance.Contrast(img_rgb).enhance(1.1)
 
-            # 🟡 Adjust sharpness
+            # Adjust sharpness
             img_rgb = ImageEnhance.Sharpness(img_rgb).enhance(1.2)
 
-            # 🟡 Center the subject in the image with margin
+            # Center the subject in the image with margin
             bbox = img.getbbox()
             img_cropped = img.crop(bbox)
             margin = int(37.8)  # 1 cm margin in pixels
@@ -72,17 +72,17 @@ else:
             new_height = int(img_height * scale_factor)
             img_resized = img_cropped.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
-            # 🟡 Create centered image with solid white background
+            # Create centered image with solid white background
             final_img = Image.new("RGBA", (1000, 1000), (255, 255, 255, 255))
             paste_x = (1000 - new_width) // 2
             paste_y = (1000 - new_height) // 2
             final_img.paste(img_resized, (paste_x, paste_y), img_resized)
 
-            # 🟡 Save output with white background
+            # Save output with white background
             final_img.convert("RGB").save(output_path, "JPEG", quality=100)
-            print(f"✅ Saved: {output_path}")
+            print(f"Saved: {output_path}")
 
         except Exception as e:
-            print(f"❌ Error processing {filename}: {e}")
+            print(f"Error processing {filename}: {e}")
 
-print("🎉 Background removal and editing finished.")
+print("Background removal and editing finished.")
